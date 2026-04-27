@@ -12,7 +12,7 @@ Choose Man is an anonymous real-time decision app. One user creates a yes/no que
 
 ```text
 choose-man/
-├── compose.yaml
+├── docker-compose.yml
 ├── backend/
 │   ├── api/
 │   ├── core/
@@ -94,6 +94,21 @@ Useful commands:
 docker compose up -d --build
 docker compose logs -f
 docker compose down
+```
+
+Standalone image builds:
+
+```bash
+docker build -t choose-man-backend ./backend
+docker build -t choose-man-frontend ./frontend
+```
+
+Optional compose overrides:
+
+```bash
+export FRONTEND_PORT=8080
+export BACKEND_PORT=8000
+export APP_ORIGIN=http://localhost:8080
 ```
 
 ## How To Use
