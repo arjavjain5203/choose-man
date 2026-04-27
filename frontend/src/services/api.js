@@ -1,21 +1,5 @@
-function resolveApiBaseUrl() {
-  const explicitBaseUrl = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
-  if (explicitBaseUrl) {
-    return explicitBaseUrl;
-  }
-
-  if (import.meta.env.DEV) {
-    return "http://localhost:8000";
-  }
-
-  if (typeof window !== "undefined") {
-    return window.location.origin;
-  }
-
-  return "http://localhost:8000";
-}
-
-const API_BASE_URL = resolveApiBaseUrl();
+const API_BASE_URL =
+  typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -30,50 +14,31 @@ async function request(path, options = {}) {
   const payload = isJson ? await response.json() : null;
 
   if (!response.ok) {
-    const message = payload?.detail || "Something went wrong.";
-    throw new Error(message);
+    throw new Error(payload?.detail || "Request failed.");
   }
 
   return payload;
 }
 
-export async function createQuestion({ senderId, text }) {
+export async function createQuestion(text, mode, sender_id) {
   return request("/question", {
     method: "POST",
-    body: JSON.stringify({
-      sender_id: senderId,
-      text,
-    }),
+    body: JSON.stringify({ text, mode, sender_id }),
   });
 }
 
-export async function getQuestion(questionId) {
-  return request(`/question/${questionId}`);
+export async function getQuestion(id) {
+  return request(`/question/${id}`);
 }
 
-export async function submitAnswer({ questionId, receiverId, answer }) {
+export async function answerQuestion(question_id, user_id, user_choice) {
+  const body = { question_id, user_id };
+  if (typeof user_choice !== "undefined") {
+    body.user_choice = user_choice;
+  }
+
   return request("/answer", {
     method: "POST",
-    body: JSON.stringify({
-      question_id: questionId,
-      receiver_id: receiverId,
-      answer,
-    }),
+    body: JSON.stringify(body),
   });
-}
-
-export function getApiBaseUrl() {
-  return API_BASE_URL;
-}
-
-export function getWebSocketBaseUrl() {
-  if (import.meta.env.DEV) {
-    return "ws://localhost:8000";
-  }
-
-  if (typeof window !== "undefined") {
-    return `${window.location.origin.replace(/^http/, "ws")}`;
-  }
-
-  return "ws://localhost:8000";
 }

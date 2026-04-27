@@ -1,17 +1,16 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import AnswerPage from "./pages/AnswerPage";
-import ResultPage from "./pages/ResultPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import Home from "./pages/Home";
+import Answer from "./pages/Answer";
+import Result from "./pages/Result";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/answer/:questionId" element={<AnswerPage />} />
-      <Route path="/result/:questionId" element={<ResultPage />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/answer/:id" element={<Answer />} />
+      <Route path="/result/:id" element={<Result />} />
       <Route path="/home" element={<Navigate to="/" replace />} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

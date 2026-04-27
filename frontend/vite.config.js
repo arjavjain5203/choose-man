@@ -6,5 +6,19 @@ export default defineConfig({
   server: {
     port: 5173,
     host: "0.0.0.0",
+    proxy: {
+      "/question": {
+        target: "http://127.0.0.1:10000",
+        changeOrigin: true,
+      },
+      "/answer": {
+        target: "http://127.0.0.1:10000",
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: "ws://127.0.0.1:10000",
+        ws: true,
+      },
+    },
   },
 });

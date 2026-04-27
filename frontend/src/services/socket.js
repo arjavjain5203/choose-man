@@ -1,61 +1,34 @@
-import { getWebSocketBaseUrl } from "./api";
-
-function buildWebSocketUrl(userId) {
-  return `${getWebSocketBaseUrl()}/ws/${encodeURIComponent(userId)}`;
+function buildSocketUrl(userId) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
+  const protocol = origin.startsWith("https") ? "wss" : "ws";
+  const host = origin.replace(/^https?:\/\//, "");
+  return `${protocol}://${host}/ws/${encodeURIComponent(userId)}`;
 }
 
-export function createQuestionSocket(userId, { onEvent, onStatus }) {
-  let websocket;
-  let reconnectTimer;
-  let reconnectAttempts = 0;
-  let manuallyClosed = false;
+export function connect(userId, onMessageCallback) {
+  const socket = new WebSocket(buildSocketUrl(userId));
 
-  const connect = () => {
-    if (manuallyClosed) {
-      return;
-    }
-
-    onStatus?.("connecting");
-    websocket = new WebSocket(buildWebSocketUrl(userId));
-
-    websocket.onopen = () => {
-      reconnectAttempts = 0;
-      onStatus?.("connected");
-    };
-
-    websocket.onmessage = (message) => {
-      try {
-        const parsed = JSON.parse(message.data);
-        onEvent?.(parsed);
-      } catch (error) {
-        onStatus?.("invalid-message");
-      }
-    };
-
-    websocket.onerror = () => {
-      onStatus?.("error");
-    };
-
-    websocket.onclose = () => {
-      if (manuallyClosed) {
-        onStatus?.("closed");
-        return;
-      }
-
-      onStatus?.("reconnecting");
-      const delay = Math.min(1000 * 2 ** reconnectAttempts, 5000);
-      reconnectAttempts += 1;
-      reconnectTimer = window.setTimeout(connect, delay);
-    };
+  socket.onopen = () => {
+    console.info("WebSocket connected");
   };
 
-  connect();
+  socket.onmessage = (event) => {
+    try {
+      const payload = JSON.parse(event.data);
+      onMessageCallback?.(payload);
+    } catch (error) {
+      console.error("Invalid WebSocket message", error);
+    }
+  };
+
+  socket.onclose = () => {
+    console.info("WebSocket disconnected");
+  };
 
   return {
+    socket,
     close() {
-      manuallyClosed = true;
-      window.clearTimeout(reconnectTimer);
-      websocket?.close();
+      socket.close();
     },
   };
 }
