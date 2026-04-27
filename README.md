@@ -12,6 +12,7 @@ Choose Man is an anonymous real-time decision app. One user creates a yes/no que
 
 ```text
 choose-man/
+├── compose.yaml
 ├── backend/
 │   ├── api/
 │   ├── core/
@@ -19,9 +20,12 @@ choose-man/
 │   ├── models/
 │   ├── services/
 │   ├── tests/
+│   ├── Dockerfile
 │   ├── main.py
 │   └── requirements.txt
 └── frontend/
+    ├── Dockerfile
+    ├── nginx.conf
     ├── src/
     │   ├── components/
     │   ├── pages/
@@ -63,6 +67,33 @@ Optional environment variable:
 
 ```bash
 echo "VITE_API_BASE_URL=http://localhost:8000" > .env
+```
+
+If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin in a containerized deployment.
+
+## Docker Deployment
+
+Build and run the full stack with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+The app is then available at `http://localhost:8080`.
+
+Container behavior:
+
+- `frontend` serves the built React app through Nginx
+- `frontend` proxies REST and WebSocket traffic to `backend`
+- `backend` runs FastAPI with Uvicorn on port `8000`
+- question data stays in memory, so restarting the backend clears all questions
+
+Useful commands:
+
+```bash
+docker compose up -d --build
+docker compose logs -f
+docker compose down
 ```
 
 ## How To Use
