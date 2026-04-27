@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from random import choice
+import random
 from uuid import uuid4
 
 from fastapi import HTTPException, status
