@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Yes or No</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, #ff6ec4, #7873f5);
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 12px;
+      width: 80%;
+      max-width: 320px;
+      border-radius: 25px;
+      border: none;
+      margin: 20px 0;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .circle {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .circle:nth-child(1) {
+      background: #00f5d4;
+    }
+
+    .circle:nth-child(2) {
+      background: #ffbe0b;
+    }
+
+    .circle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(255,255,255,0.6);
+    }
+
+    .animate {
+      animation: pulse 0.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    #result {
+      margin-top: 30px;
+      font-size: 32px;
+      font-weight: bold;
+      min-height: 40px;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      background: white;
+      color: black;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Can't Decide?</h1>
+  <p>Let fate choose for you</p>
+
+  <input type="text" id="question" placeholder="(Optional) Ask your question...">
+
+  <div class="container">
+    <div class="circle" onclick="decide(this)">Pick</div>
+    <div class="circle" onclick="decide(this)">Pick</div>
+  </div>
+
+  <div id="result"></div>
+
+  <button onclick="reset()">Try Again</button>
+
+  <script>
+    function decide(clickedCircle) {
+      const circles = document.querySelectorAll(".circle");
+      
+      // disable clicking again
+      circles.forEach(c => c.onclick = null);
+
+      // animation
+      clickedCircle.classList.add("animate");
+
+      document.getElementById("result").innerText = "Thinking...";
+
+      setTimeout(() => {
+        const answers = ["YES ✅", "NO ❌"];
+        const random = Math.floor(Math.random() * 2);
+
+        document.getElementById("result").innerText = answers[random];
+
+        clickedCircle.classList.remove("animate");
+      }, 1500);
+    }
+
+    function reset() {
+      document.getElementById("result").innerText = "";
+      document.getElementById("question").value = "";
+
+      const circles = document.querySelectorAll(".circle");
+      circles.forEach(c => {
+        c.onclick = function() { decide(c); };
+      });
+    }
+  </script>
+
+</body>
+</html>
