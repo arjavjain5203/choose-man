@@ -14,23 +14,18 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV FRONTEND_BASE_URL=http://localhost:8080
-ENV CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends nginx \
-    && rm -rf /var/lib/apt/lists/*
+ENV PORT=10000
+ENV FRONTEND_BASE_URL=http://localhost:10000
+ENV CORS_ORIGINS=http://localhost:10000,http://127.0.0.1:10000
 
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
 COPY backend /app/backend
-COPY docker/nginx-single.conf /etc/nginx/conf.d/default.conf
-COPY docker/start.sh /app/start.sh
-COPY --from=frontend-build /app/frontend/dist /usr/share/nginx/html
+COPY --from=frontend-build /app/frontend/dist /app/backend/frontend_dist
 
-RUN chmod +x /app/start.sh
+WORKDIR /app/backend
 
-EXPOSE 80
+EXPOSE 10000
 
-CMD ["/app/start.sh"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}"]

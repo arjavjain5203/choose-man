@@ -13,7 +13,6 @@ Choose Man is an anonymous real-time decision app. One user creates a yes/no que
 ```text
 choose-man/
 ├── Dockerfile
-├── docker-compose.yml
 ├── backend/
 │   ├── api/
 │   ├── core/
@@ -21,12 +20,9 @@ choose-man/
 │   ├── models/
 │   ├── services/
 │   ├── tests/
-│   ├── Dockerfile
 │   ├── main.py
 │   └── requirements.txt
 └── frontend/
-    ├── Dockerfile
-    ├── nginx.conf
     ├── src/
     │   ├── components/
     │   ├── pages/
@@ -70,70 +66,48 @@ Optional environment variable:
 echo "VITE_API_BASE_URL=http://localhost:8000" > .env
 ```
 
-If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin under `/api` in a containerized deployment.
+If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin in a containerized deployment.
 
 ## Docker Deployment
 
-Single-image build from the repo root:
+Render-friendly single-image build from the repo root:
 
 ```bash
 docker build -t choose-man .
-docker run --rm -p 8080:80 choose-man
+docker run --rm -p 10000:10000 choose-man
 ```
 
-This root image bundles the frontend and backend into one container:
+This image bundles the frontend and backend into one container:
 
-- Nginx serves the built React app on port `80`
-- Nginx proxies `/api` and `/ws` to a local Uvicorn process
+- FastAPI serves the built React app and all API routes from the same process
+- WebSockets continue to work at `/ws/{user_id}`
 - the backend still uses in-memory storage, so restarting the container clears all questions
 
-If you expose the container on a different public origin, override the generated share-link origin:
+Local run with a custom public origin for generated share links:
 
 ```bash
-docker run --rm -p 3000:80 \
+docker run --rm -p 3000:3000 \
+  -e PORT=3000 \
   -e FRONTEND_BASE_URL=http://localhost:3000 \
   -e CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000 \
   choose-man
 ```
 
-Build and run the full stack with Docker Compose:
+For Render:
 
 ```bash
-docker compose up --build
+Render will build and run the root Dockerfile automatically.
 ```
 
-The app is then available at `http://localhost:8080`.
-
-Container behavior:
-
-- `frontend` serves the built React app through Nginx
-- `frontend` proxies REST traffic under `/api` and WebSocket traffic under `/ws` to `backend`
-- `backend` runs FastAPI with Uvicorn on port `8000`
-- question data stays in memory, so restarting the backend clears all questions
-
-Useful commands:
+Set these environment variables in Render:
 
 ```bash
-docker compose up -d --build
-docker compose logs -f
-docker compose down
+PORT=10000
+FRONTEND_BASE_URL=https://your-app.onrender.com
+CORS_ORIGINS=https://your-app.onrender.com
 ```
 
-Standalone image builds:
-
-```bash
-docker build -t choose-man .
-docker build -t choose-man-backend ./backend
-docker build -t choose-man-frontend ./frontend
-```
-
-Optional compose overrides:
-
-```bash
-export FRONTEND_PORT=8080
-export BACKEND_PORT=8000
-export APP_ORIGIN=http://localhost:8080
-```
+If you use Render's Docker service, the image only needs to listen on `$PORT`.
 
 ## How To Use
 
