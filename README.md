@@ -69,7 +69,7 @@ Optional environment variable:
 echo "VITE_API_BASE_URL=http://localhost:8000" > .env
 ```
 
-If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin in a containerized deployment.
+If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin under `/api` in a containerized deployment.
 
 ## Docker Deployment
 
@@ -84,7 +84,7 @@ The app is then available at `http://localhost:8080`.
 Container behavior:
 
 - `frontend` serves the built React app through Nginx
-- `frontend` proxies REST and WebSocket traffic to `backend`
+- `frontend` proxies REST traffic under `/api` and WebSocket traffic under `/ws` to `backend`
 - `backend` runs FastAPI with Uvicorn on port `8000`
 - question data stays in memory, so restarting the backend clears all questions
 

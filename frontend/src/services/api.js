@@ -4,13 +4,12 @@ function resolveApiBaseUrl() {
     return explicitBaseUrl;
   }
 
-  if (typeof window !== "undefined") {
-    const port = window.location.port;
-    if (port && port !== "80" && port !== "443" && port !== "8080") {
-      return "http://localhost:8000";
-    }
+  if (import.meta.env.DEV) {
+    return "http://localhost:8000";
+  }
 
-    return window.location.origin;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api`;
   }
 
   return "http://localhost:8000";
@@ -65,4 +64,16 @@ export async function submitAnswer({ questionId, receiverId, answer }) {
 
 export function getApiBaseUrl() {
   return API_BASE_URL;
+}
+
+export function getWebSocketBaseUrl() {
+  if (import.meta.env.DEV) {
+    return "ws://localhost:8000";
+  }
+
+  if (typeof window !== "undefined") {
+    return `${window.location.origin.replace(/^http/, "ws")}`;
+  }
+
+  return "ws://localhost:8000";
 }

@@ -1,9 +1,7 @@
-import { getApiBaseUrl } from "./api";
+import { getWebSocketBaseUrl } from "./api";
 
 function buildWebSocketUrl(userId) {
-  const apiBaseUrl = getApiBaseUrl();
-  const wsBaseUrl = apiBaseUrl.replace(/^http/, "ws");
-  return `${wsBaseUrl}/ws/${encodeURIComponent(userId)}`;
+  return `${getWebSocketBaseUrl()}/ws/${encodeURIComponent(userId)}`;
 }
 
 export function createQuestionSocket(userId, { onEvent, onStatus }) {
