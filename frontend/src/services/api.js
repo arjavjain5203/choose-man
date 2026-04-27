@@ -1,8 +1,11 @@
-const API_BASE_URL =
-  typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
+const BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
+
+function buildUrl(path) {
+  return new URL(path, `${BASE_URL}/`).toString();
+}
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(buildUrl(path), {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),

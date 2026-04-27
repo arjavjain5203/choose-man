@@ -8,16 +8,16 @@ class ConnectionManager:
     async def connect(self, user_id: str, websocket: WebSocket) -> None:
         await websocket.accept()
 
-        existing_websocket = self.active_connections.get(user_id)
-        if existing_websocket is not None and existing_websocket is not websocket:
-            try:
-                await existing_websocket.close()
-            except Exception:
-                pass
-
         self.active_connections[user_id] = websocket
 
-    def disconnect(self, user_id: str) -> None:
+    def disconnect(self, user_id: str, websocket: WebSocket | None = None) -> None:
+        active_websocket = self.active_connections.get(user_id)
+        if active_websocket is None:
+            return
+
+        if websocket is not None and active_websocket is not websocket:
+            return
+
         self.active_connections.pop(user_id, None)
 
     async def send_to_user(self, user_id: str, message: dict) -> None:
@@ -28,7 +28,7 @@ class ConnectionManager:
         try:
             await websocket.send_json(message)
         except Exception:
-            self.disconnect(user_id)
+            self.disconnect(user_id, websocket)
 
 
 connection_manager = ConnectionManager()

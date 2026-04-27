@@ -1,4 +1,14 @@
 function QuestionInput({ value, onChange, onSubmit, disabled }) {
+  const hasQuestion = value.trim().length > 0;
+
+  const handleSubmit = () => {
+    if (!hasQuestion || disabled) {
+      return;
+    }
+
+    onSubmit();
+  };
+
   return (
     <div className="card">
       <h2>Ask a question</h2>
@@ -10,7 +20,7 @@ function QuestionInput({ value, onChange, onSubmit, disabled }) {
         rows={4}
         disabled={disabled}
       />
-      <button className="primary-button" type="button" onClick={onSubmit} disabled={disabled}>
+      <button className="primary-button" type="button" onClick={handleSubmit} disabled={disabled || !hasQuestion}>
         {disabled ? "Creating..." : "Create question"}
       </button>
     </div>

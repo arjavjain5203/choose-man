@@ -13,6 +13,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str) -> None:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        connection_manager.disconnect(user_id)
+        connection_manager.disconnect(user_id, websocket)
     except Exception:
-        connection_manager.disconnect(user_id)
+        connection_manager.disconnect(user_id, websocket)

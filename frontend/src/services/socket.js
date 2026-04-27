@@ -1,8 +1,12 @@
+const BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
+
 function buildSocketUrl(userId) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
-  const protocol = origin.startsWith("https") ? "wss" : "ws";
-  const host = origin.replace(/^https?:\/\//, "");
-  return `${protocol}://${host}/ws/${encodeURIComponent(userId)}`;
+  const socketUrl = new URL(BASE_URL);
+  socketUrl.protocol = socketUrl.protocol === "https:" ? "wss:" : "ws:";
+  socketUrl.pathname = `/ws/${encodeURIComponent(userId)}`;
+  socketUrl.search = "";
+  socketUrl.hash = "";
+  return socketUrl.toString();
 }
 
 export function connect(userId, onMessageCallback) {
