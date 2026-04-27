@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, status
 
+from app.core.connection_manager import connection_manager
 from app.db.storage import questions
 from app.models.question import (
     AnswerQuestionRequest,
@@ -82,5 +83,14 @@ async def answer_question(payload: AnswerQuestionRequest) -> AnswerQuestionRespo
         }
     )
     questions[payload.question_id] = updated_question
+
+    await connection_manager.send_to_user(
+        updated_question.sender_id,
+        {
+            "type": "answer",
+            "question_id": updated_question.id,
+            "answer": updated_question.answer,
+        },
+    )
 
     return AnswerQuestionResponse(answer=updated_question.answer)

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router as question_router
+from app.api.websocket import router as websocket_router
 
 app = FastAPI(title="Anonymous Decision Backend")
 
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(question_router)
+app.include_router(websocket_router)
 
 
 @app.get("/")
