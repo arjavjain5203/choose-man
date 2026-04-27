@@ -12,6 +12,7 @@ Choose Man is an anonymous real-time decision app. One user creates a yes/no que
 
 ```text
 choose-man/
+├── Dockerfile
 ├── docker-compose.yml
 ├── backend/
 │   ├── api/
@@ -73,6 +74,28 @@ If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` dur
 
 ## Docker Deployment
 
+Single-image build from the repo root:
+
+```bash
+docker build -t choose-man .
+docker run --rm -p 8080:80 choose-man
+```
+
+This root image bundles the frontend and backend into one container:
+
+- Nginx serves the built React app on port `80`
+- Nginx proxies `/api` and `/ws` to a local Uvicorn process
+- the backend still uses in-memory storage, so restarting the container clears all questions
+
+If you expose the container on a different public origin, override the generated share-link origin:
+
+```bash
+docker run --rm -p 3000:80 \
+  -e FRONTEND_BASE_URL=http://localhost:3000 \
+  -e CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000 \
+  choose-man
+```
+
 Build and run the full stack with Docker Compose:
 
 ```bash
@@ -99,6 +122,7 @@ docker compose down
 Standalone image builds:
 
 ```bash
+docker build -t choose-man .
 docker build -t choose-man-backend ./backend
 docker build -t choose-man-frontend ./frontend
 ```
