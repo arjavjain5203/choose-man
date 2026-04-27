@@ -73,7 +73,7 @@ async def answer_question(payload: AnswerQuestionRequest) -> AnswerQuestionRespo
                 detail="user_choice is required for fixed mode.",
             )
     else:
-        resolved_answer = choice(["YES", "NO"])
+        resolved_answer = random.choice(["YES", "NO"])
 
     updated_question = question.model_copy(
         update={
