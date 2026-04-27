@@ -1,20 +1,15 @@
-import asyncio
-
 import pytest
 from fastapi.testclient import TestClient
 
-from db.memory import reset_store
-from main import app
-from services.connection_manager import connection_manager
+from app.db.storage import questions
+from app.main import app
 
 
 @pytest.fixture(autouse=True)
-def clear_state() -> None:
-    connection_manager.reset()
-    asyncio.run(reset_store())
+def clear_questions() -> None:
+    questions.clear()
     yield
-    connection_manager.reset()
-    asyncio.run(reset_store())
+    questions.clear()
 
 
 @pytest.fixture

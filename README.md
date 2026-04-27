@@ -1,145 +1,129 @@
-# Choose Man
+# Phase 1 Backend
 
-Choose Man is an anonymous real-time decision app. One user creates a yes/no question, shares a link, and the recipient answers from a separate anonymous browser session. The sender sees the answer instantly over WebSockets.
+This repository now contains the Phase 1 FastAPI backend for an anonymous decision-making app.
 
-## Stack
+Core scope:
 
-- Frontend: React, Vite, Tailwind CSS, React Router
-- Backend: FastAPI, WebSockets, in-memory storage
-- Identity: anonymous `userId` stored in `localStorage` with `crypto.randomUUID()`
+- no frontend runtime
+- no WebSockets
+- no authentication
+- no database
+- in-memory storage only
 
 ## Project Structure
 
 ```text
 choose-man/
 ├── Dockerfile
-├── backend/
-│   ├── api/
-│   ├── core/
-│   ├── db/
-│   ├── models/
-│   ├── services/
-│   ├── tests/
-│   ├── main.py
-│   └── requirements.txt
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
+└── backend/
+    ├── app/
+    │   ├── api/
+    │   ├── db/
+    │   ├── models/
     │   ├── services/
-    │   └── utils/
-    └── package.json
+    │   └── main.py
+    ├── tests/
+    ├── requirements.txt
+    └── run.py
 ```
 
-## Backend Setup
+## API
+
+- `POST /question`
+- `GET /question/{id}`
+- `POST /answer`
+- `GET /`
+
+### `POST /question`
+
+Request:
+
+```json
+{
+  "text": "Should I go ahead?",
+  "sender_id": "user-123",
+  "mode": "fixed"
+}
+```
+
+Response:
+
+```json
+{
+  "question_id": "uuid-string"
+}
+```
+
+### `GET /question/{id}`
+
+Returns the full stored question object.
+
+### `POST /answer`
+
+Request:
+
+```json
+{
+  "question_id": "uuid-string",
+  "user_id": "user-456",
+  "user_choice": "YES"
+}
+```
+
+For random mode, `user_choice` is ignored.
+
+Response:
+
+```json
+{
+  "answer": "YES"
+}
+```
+
+## Local Run
 
 ```bash
 cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+python run.py
 ```
 
-The backend runs on `http://localhost:8000` by default.
+The server listens on `http://localhost:10000` by default.
 
-Optional environment variables:
+To override the port:
 
 ```bash
-export FRONTEND_BASE_URL=http://localhost:5173
-export CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+PORT=8000 python run.py
 ```
 
-## Frontend Setup
+## Docker Run
+
+Build and run from the repo root:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker build -t choose-man-backend .
+docker run --rm -p 10000:10000 choose-man-backend
 ```
 
-The frontend runs on `http://localhost:5173` by default.
-
-Optional environment variable:
+To override the runtime port:
 
 ```bash
-echo "VITE_API_BASE_URL=http://localhost:8000" > .env
+docker run --rm -p 8000:8000 -e PORT=8000 choose-man-backend
 ```
 
-If `VITE_API_BASE_URL` is not set, the frontend uses `http://localhost:8000` during local development and falls back to the same origin in a containerized deployment.
+## Validation Rules
 
-## Docker Deployment
-
-Render-friendly single-image build from the repo root:
-
-```bash
-docker build -t choose-man .
-docker run --rm -p 10000:10000 choose-man
-```
-
-This image bundles the frontend and backend into one container:
-
-- FastAPI serves the built React app and all API routes from the same process
-- WebSockets continue to work at `/ws/{user_id}`
-- the backend still uses in-memory storage, so restarting the container clears all questions
-
-Local run with a custom public origin for generated share links:
-
-```bash
-docker run --rm -p 3000:3000 \
-  -e PORT=3000 \
-  -e FRONTEND_BASE_URL=http://localhost:3000 \
-  -e CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000 \
-  choose-man
-```
-
-For Render:
-
-```bash
-Render will build and run the root Dockerfile automatically.
-```
-
-Set these environment variables in Render:
-
-```bash
-PORT=10000
-FRONTEND_BASE_URL=https://your-app.onrender.com
-CORS_ORIGINS=https://your-app.onrender.com
-```
-
-If you use Render's Docker service, the image only needs to listen on `$PORT`.
-
-## How To Use
-
-1. Open the frontend in one browser window.
-2. Create a yes/no question.
-3. Copy the share link and open it in a different browser profile or incognito window.
-4. Answer `YES` or `NO`.
-5. Open the result page as the sender to watch the status update instantly.
-
-Using a second browser profile matters because each browser stores its own anonymous `userId`.
-
-## API
-
-- `POST /question` creates a question
-- `GET /question/{id}` fetches a question
-- `POST /answer` submits an answer
-- `GET /health` checks service health
-- `WS /ws/{user_id}` subscribes a sender for live updates
+- missing question returns `404`
+- expired question returns `400`
+- already answered question returns `400`
+- fixed mode requires `user_choice`
 
 ## Testing
-
-Backend tests:
 
 ```bash
 cd backend
 source .venv/bin/activate
 pytest
-```
-
-Frontend production build:
-
-```bash
-cd frontend
-npm run build
 ```
