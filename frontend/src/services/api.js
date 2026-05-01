@@ -1,3 +1,5 @@
+import { getAnonymousUserId } from "../utils/user";
+
 const BASE_URL = import.meta.env.VITE_API_URL || window.location.origin;
 
 function buildUrl(path) {
@@ -8,6 +10,7 @@ async function request(path, options = {}) {
   const response = await fetch(buildUrl(path), {
     headers: {
       "Content-Type": "application/json",
+      "x-user-id": getAnonymousUserId(),
       ...(options.headers || {}),
     },
     ...options,

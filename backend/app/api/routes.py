@@ -1,5 +1,6 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
+from app.core.rate_limiter import rate_limiter
 from app.models.question import (
     AnswerQuestionRequest,
     AnswerQuestionResponse,
@@ -13,7 +14,10 @@ router = APIRouter()
 
 
 @router.post("/question", response_model=CreateQuestionResponse, status_code=status.HTTP_200_OK)
-async def create_question_route(payload: CreateQuestionRequest) -> CreateQuestionResponse:
+async def create_question_route(
+    payload: CreateQuestionRequest,
+    _: None = Depends(rate_limiter),
+) -> CreateQuestionResponse:
     return await create_question(payload)
 
 

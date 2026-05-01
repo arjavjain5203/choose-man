@@ -9,6 +9,7 @@ def test_sender_receives_answer_over_websocket(client):
             "sender_id": "sender-live",
             "mode": "fixed",
         },
+        headers={"x-user-id": "sender-live"},
     )
     question_id = create_response.json()["question_id"]
 
@@ -40,6 +41,7 @@ def test_answer_succeeds_when_sender_not_connected(client):
             "sender_id": "offline-sender",
             "mode": "fixed",
         },
+        headers={"x-user-id": "offline-sender"},
     )
     question_id = create_response.json()["question_id"]
 
