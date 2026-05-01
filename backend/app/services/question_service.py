@@ -21,6 +21,15 @@ def utc_now() -> datetime:
 
 async def create_question(payload: CreateQuestionRequest) -> CreateQuestionResponse:
     question_id = str(uuid4())
+    option_map = None
+    if payload.mode == "random":
+        option_map = random.choice(
+            [
+                {"A": "YES", "B": "NO"},
+                {"A": "NO", "B": "YES"},
+            ]
+        )
+
     question = Question(
         id=question_id,
         sender_id=payload.sender_id,
@@ -28,6 +37,7 @@ async def create_question(payload: CreateQuestionRequest) -> CreateQuestionRespo
         text=payload.text,
         mode=payload.mode,
         answer=None,
+        option_map=option_map,
         status="pending",
         expires_at=utc_now() + timedelta(hours=1),
     )
@@ -65,15 +75,35 @@ async def answer_question(payload: AnswerQuestionRequest) -> AnswerQuestionRespo
             detail="Question has already been answered.",
         )
 
-    resolved_answer = payload.user_choice
     if question.mode == "fixed":
-        if resolved_answer is None:
+        if payload.user_choice is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="user_choice is required for fixed mode.",
             )
+        if payload.user_choice not in {"YES", "NO"}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_choice must be YES or NO for fixed mode.",
+            )
+        resolved_answer = payload.user_choice
     else:
-        resolved_answer = random.choice(["YES", "NO"])
+        if payload.user_choice is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_choice is required for random mode.",
+            )
+        if payload.user_choice not in {"A", "B"}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_choice must be A or B for random mode.",
+            )
+        if question.option_map is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Question option map is missing.",
+            )
+        resolved_answer = question.option_map[payload.user_choice]
 
     updated_question = question.model_copy(
         update={

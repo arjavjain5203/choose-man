@@ -20,7 +20,7 @@ function ResultPanel({ answer, error, loading, question, title = "Result" }) {
       body = (
         <div className="result-stack">
           <p className="question-copy">{question.text}</p>
-          <p className="status success">Final answer: {resolvedAnswer}</p>
+          <p className="status success">Result: {resolvedAnswer}</p>
         </div>
       );
     } else if (isExpired(question)) {

@@ -55,11 +55,7 @@ function Answer() {
     setError("");
 
     try {
-      if (question.mode === "fixed") {
-        await answerQuestion(id, userId, selectedValue);
-      } else {
-        await answerQuestion(id, userId);
-      }
+      await answerQuestion(id, userId, selectedValue);
       navigate(`/result/${id}`);
     } catch (answerError) {
       if (answerError.message === "Question has already been answered.") {

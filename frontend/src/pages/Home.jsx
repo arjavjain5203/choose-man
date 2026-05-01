@@ -8,6 +8,12 @@ import { answerQuestion, createQuestion, getQuestion } from "../services/api";
 import { connect } from "../services/socket";
 import { getAnonymousUserId } from "../utils/user";
 
+const ACTIVE_QUESTION_ID_KEY = "activeQuestionId";
+
+function buildShareLink(id) {
+  return id ? `${window.location.origin}/answer/${id}` : "";
+}
+
 function Home() {
   const [mode, setMode] = useState("fixed");
   const [questionText, setQuestionText] = useState("");
@@ -19,6 +25,78 @@ function Home() {
   const [answering, setAnswering] = useState(false);
   const [error, setError] = useState("");
   const [userId] = useState(() => getAnonymousUserId());
+
+  useEffect(() => {
+    const storedQuestionId = window.localStorage.getItem(ACTIVE_QUESTION_ID_KEY);
+    if (storedQuestionId) {
+      setQuestionId(storedQuestionId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (questionId) {
+      window.localStorage.setItem(ACTIVE_QUESTION_ID_KEY, questionId);
+      setShareLink(buildShareLink(questionId));
+      return;
+    }
+
+    window.localStorage.removeItem(ACTIVE_QUESTION_ID_KEY);
+    setShareLink("");
+  }, [questionId]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadActiveQuestion() {
+      if (!questionId) {
+        setQuestion(null);
+        setResult("");
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+      setQuestion(null);
+      setResult("");
+
+      try {
+        const latestQuestion = await getQuestion(questionId);
+        if (!isMounted) {
+          return;
+        }
+
+        setMode(latestQuestion.mode);
+        setQuestion(latestQuestion);
+        setResult(latestQuestion.answer || "");
+        setShareLink(buildShareLink(questionId));
+      } catch (fetchError) {
+        if (!isMounted) {
+          return;
+        }
+
+        if (fetchError.message === "Question not found.") {
+          window.localStorage.removeItem(ACTIVE_QUESTION_ID_KEY);
+          setQuestionId("");
+          setQuestion(null);
+          setResult("");
+          setError("");
+          return;
+        }
+
+        setError(fetchError.message);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadActiveQuestion();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [questionId]);
 
   useEffect(() => {
     const socketConnection = connect(userId, async (message) => {
@@ -47,10 +125,7 @@ function Home() {
 
     try {
       const response = await createQuestion(questionText, mode, userId);
-      const createdQuestion = await getQuestion(response.question_id);
       setQuestionId(response.question_id);
-      setQuestion(createdQuestion);
-      setShareLink(`${window.location.origin}/answer/${response.question_id}`);
     } catch (createError) {
       setError(createError.message);
     } finally {
@@ -68,11 +143,7 @@ function Home() {
     setError("");
 
     try {
-      const activeMode = question?.mode || mode;
-      const response =
-        activeMode === "fixed"
-          ? await answerQuestion(questionId, userId, selectedValue)
-          : await answerQuestion(questionId, userId);
+      const response = await answerQuestion(questionId, userId, selectedValue);
 
       setResult(response.answer);
       const latestQuestion = await getQuestion(questionId);

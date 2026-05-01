@@ -21,6 +21,7 @@ def test_create_fixed_question(client):
     stored_question = questions[payload["question_id"]]
     assert stored_question.receiver_id is None
     assert stored_question.answer is None
+    assert stored_question.option_map is None
     assert stored_question.status == "pending"
     assert stored_question.mode == "fixed"
 
@@ -38,6 +39,12 @@ def test_create_random_question(client):
     assert response.status_code == 200
     payload = response.json()
     assert payload["question_id"] in questions
+    stored_question = questions[payload["question_id"]]
+    assert stored_question.option_map in (
+        {"A": "YES", "B": "NO"},
+        {"A": "NO", "B": "YES"},
+    )
+    assert stored_question.answer is None
 
 
 def test_get_question_returns_full_object(client):
@@ -58,6 +65,7 @@ def test_get_question_returns_full_object(client):
     assert payload["id"] == question_id
     assert payload["text"] == "Can I fetch this?"
     assert payload["status"] == "pending"
+    assert "option_map" not in payload
 
 
 def test_get_question_missing_returns_404(client):
@@ -112,7 +120,7 @@ def test_answer_fixed_question_requires_choice(client):
     assert response.json()["detail"] == "user_choice is required for fixed mode."
 
 
-def test_answer_random_question_ignores_choice(client):
+def test_answer_random_question_uses_stored_mapping(client):
     create_response = client.post(
         "/question",
         json={
@@ -121,18 +129,68 @@ def test_answer_random_question_ignores_choice(client):
             "mode": "random",
         },
     )
+    question_id = create_response.json()["question_id"]
+    option_map = questions[question_id].option_map
+    assert option_map is not None
+
+    response = client.post(
+        "/answer",
+        json={
+            "question_id": question_id,
+            "user_id": "receiver-6",
+            "user_choice": "A",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["answer"] == option_map["A"]
+    assert questions[question_id].answer == option_map["A"]
+
+
+def test_answer_random_question_rejects_yes_no_choice(client):
+    create_response = client.post(
+        "/question",
+        json={
+            "text": "Let chance decide?",
+            "sender_id": "sender-random-invalid",
+            "mode": "random",
+        },
+    )
 
     response = client.post(
         "/answer",
         json={
             "question_id": create_response.json()["question_id"],
-            "user_id": "receiver-6",
+            "user_id": "receiver-random-invalid",
             "user_choice": "YES",
         },
     )
 
-    assert response.status_code == 200
-    assert response.json()["answer"] in {"YES", "NO"}
+    assert response.status_code == 400
+    assert response.json()["detail"] == "user_choice must be A or B for random mode."
+
+
+def test_answer_fixed_question_rejects_a_b_choice(client):
+    create_response = client.post(
+        "/question",
+        json={
+            "text": "Keep fixed behavior strict?",
+            "sender_id": "sender-fixed-invalid",
+            "mode": "fixed",
+        },
+    )
+
+    response = client.post(
+        "/answer",
+        json={
+            "question_id": create_response.json()["question_id"],
+            "user_id": "receiver-fixed-invalid",
+            "user_choice": "A",
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "user_choice must be YES or NO for fixed mode."
 
 
 def test_already_answered_question_returns_400(client):

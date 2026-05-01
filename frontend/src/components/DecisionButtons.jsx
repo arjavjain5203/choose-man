@@ -1,12 +1,14 @@
 function DecisionButtons({ disabled, mode, onSelect }) {
   const isRandom = mode === "random";
+  const firstChoice = isRandom ? "A" : "YES";
+  const secondChoice = isRandom ? "B" : "NO";
 
   return (
     <div className="card">
       <h2>Answer</h2>
       <p className="muted">
         {isRandom
-          ? "Click to let the system decide randomly."
+          ? "Choose A or B to reveal the stored result."
           : "Choose the final answer."}
       </p>
 
@@ -15,18 +17,18 @@ function DecisionButtons({ disabled, mode, onSelect }) {
           className="decision-button yes"
           type="button"
           disabled={disabled}
-          onClick={() => onSelect(isRandom ? null : "YES")}
+          onClick={() => onSelect(firstChoice)}
         >
-          {isRandom ? "OPTION" : "YES"}
+          {firstChoice}
         </button>
 
         <button
           className="decision-button no"
           type="button"
           disabled={disabled}
-          onClick={() => onSelect(isRandom ? null : "NO")}
+          onClick={() => onSelect(secondChoice)}
         >
-          {isRandom ? "OPTION" : "NO"}
+          {secondChoice}
         </button>
       </div>
     </div>

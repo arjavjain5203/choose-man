@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field, field_validator
 
 
 AnswerValue = Literal["YES", "NO"]
+RandomChoiceValue = Literal["A", "B"]
+SelectableAnswerValue = Literal["YES", "NO", "A", "B"]
 QuestionMode = Literal["fixed", "random"]
 QuestionStatus = Literal["pending", "answered"]
 
@@ -16,6 +18,7 @@ class Question(BaseModel):
     text: str
     mode: QuestionMode
     answer: AnswerValue | None = None
+    option_map: dict[RandomChoiceValue, AnswerValue] | None = Field(default=None, exclude=True)
     status: QuestionStatus
     expires_at: datetime
 
@@ -41,7 +44,7 @@ class CreateQuestionResponse(BaseModel):
 class AnswerQuestionRequest(BaseModel):
     question_id: str = Field(min_length=1)
     user_id: str = Field(min_length=1)
-    user_choice: AnswerValue | None = None
+    user_choice: SelectableAnswerValue | None = None
 
     @field_validator("question_id", "user_id")
     @classmethod
