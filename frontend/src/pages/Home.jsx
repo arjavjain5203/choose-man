@@ -119,13 +119,22 @@ function Home() {
   }, [questionId, userId]);
 
   const handleCreate = async () => {
+    if (!questionText.trim()) {
+      return;
+    }
+
     setLoading(true);
     setError("");
-    setResult("");
 
     try {
       const response = await createQuestion(questionText, mode, userId);
-      setQuestionId(response.question_id);
+      const newQuestionId = response.question_id;
+
+      setQuestionId(newQuestionId);
+      setResult("");
+      setQuestion(null);
+      window.localStorage.setItem(ACTIVE_QUESTION_ID_KEY, newQuestionId);
+      setQuestionText("");
     } catch (createError) {
       setError(createError.message);
     } finally {

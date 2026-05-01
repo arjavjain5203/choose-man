@@ -131,6 +131,7 @@ a {
 .primary-button,
 .secondary-button,
 .secondary-link,
+.copy-btn,
 .decision-button {
   border: none;
   border-radius: 14px;
@@ -147,6 +148,17 @@ a {
 .secondary-link {
   background: #e9eef9;
   color: #172033;
+}
+
+.copy-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.copy-btn.copied {
+  background-color: #60a5fa;
+  transform: scale(1.05);
 }
 
 .secondary-link {

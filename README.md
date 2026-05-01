@@ -1,129 +1,50 @@
-# Phase 1 Backend
+# Choose-Man 🕵️‍♂️
 
-This repository now contains the Phase 1 FastAPI backend for an anonymous decision-making app.
+Choose-Man is an anonymous, real-time decision-making platform. Whether you need a quick YES/NO from a friend or want to let "fate" decide with a random mapping, Choose-Man makes it easy and interactive.
 
-Core scope:
+## Key Features
 
-- no frontend runtime
-- no WebSockets
-- no authentication
-- no database
-- in-memory storage only
+- **Anonymous Questions**: Ask anything without revealing your identity.
+- **Two Decision Modes**:
+  - **Fixed**: Respondent chooses YES or NO directly.
+  - **Random**: Respondent triggers a random choice (Fate decides!).
+- **Real-time Results**: Creators see responses instantly via WebSockets—no page refresh needed.
+- **Self-Expiring**: Questions automatically expire after 10 minutes to keep things relevant.
+- **Zero Database**: Built for privacy with ephemeral in-memory storage.
 
-## Project Structure
+## Tech Stack
 
-```text
-choose-man/
-├── Dockerfile
-└── backend/
-    ├── app/
-    │   ├── api/
-    │   ├── db/
-    │   ├── models/
-    │   ├── services/
-    │   └── main.py
-    ├── tests/
-    ├── requirements.txt
-    └── run.py
-```
+- **Backend**: FastAPI (Python)
+- **Frontend**: React + Tailwind CSS + Vite
+- **Real-time**: WebSockets
+- **Containerization**: Docker
 
-## API
+## Quick Start
 
-- `POST /question`
-- `GET /question/{id}`
-- `POST /answer`
-- `GET /`
-
-### `POST /question`
-
-Request:
-
-```json
-{
-  "text": "Should I go ahead?",
-  "sender_id": "user-123",
-  "mode": "fixed"
-}
-```
-
-Response:
-
-```json
-{
-  "question_id": "uuid-string"
-}
-```
-
-### `GET /question/{id}`
-
-Returns the full stored question object.
-
-### `POST /answer`
-
-Request:
-
-```json
-{
-  "question_id": "uuid-string",
-  "user_id": "user-456",
-  "user_choice": "YES"
-}
-```
-
-For random mode, `user_choice` is ignored.
-
-Response:
-
-```json
-{
-  "answer": "YES"
-}
-```
-
-## Local Run
+### Running with Docker
 
 ```bash
-cd backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python run.py
+# 1. Build the frontend
+cd frontend && npm install && npm run build && cd ..
+
+# 2. Build and run the container
+docker build -t choose-man .
+docker run -p 10000:10000 choose-man
 ```
+Visit `http://localhost:10000` to start deciding!
 
-The server listens on `http://localhost:10000` by default.
+### Local Development
 
-To override the port:
+See the [Setup & Development Guide](./docs/setup-guide.md) for detailed instructions on running the backend and frontend separately.
 
-```bash
-PORT=8000 python run.py
-```
+## Documentation
 
-## Docker Run
+For more detailed information, check out the `docs` folder:
 
-Build and run from the repo root:
+- [Architecture Overview](./docs/architecture.md)
+- [API Reference](./docs/api-reference.md)
+- [Setup & Development Guide](./docs/setup-guide.md)
 
-```bash
-docker build -t choose-man-backend .
-docker run --rm -p 10000:10000 choose-man-backend
-```
+## License
 
-To override the runtime port:
-
-```bash
-docker run --rm -p 8000:8000 -e PORT=8000 choose-man-backend
-```
-
-## Validation Rules
-
-- missing question returns `404`
-- expired question returns `400`
-- already answered question returns `400`
-- fixed mode requires `user_choice`
-
-## Testing
-
-```bash
-cd backend
-source .venv/bin/activate
-pytest
-```
+MIT
