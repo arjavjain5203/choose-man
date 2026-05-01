@@ -6,10 +6,18 @@ This guide covers how to set up Choose-Man for local development and production-
 
 - **Python 3.10+**
 - **Node.js 18+**
+- **Redis 6+** (Required for rate limiting)
 - **npm** or **yarn**
 - **Docker** (optional)
 
 ## Local Development
+
+### Redis Setup
+
+Ensure Redis is running locally on the default port (6379):
+```bash
+redis-server
+```
 
 ### Backend Setup
 

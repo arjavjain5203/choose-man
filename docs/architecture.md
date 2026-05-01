@@ -14,6 +14,7 @@ Choose-Man is an anonymous decision-making application that allows users to crea
 ### Backend
 - **FastAPI**: Modern, high-performance web framework for Python.
 - **Uvicorn**: ASGI server.
+- **Redis**: Used for rate limiting and request throttling.
 - **In-Memory Storage**: Current implementation uses an in-memory dictionary for data storage (ephemeral).
 - **WebSockets**: Handles real-time notifications to question creators.
 
@@ -21,20 +22,22 @@ Choose-Man is an anonymous decision-making application that allows users to crea
 
 1.  **Question Service**: Core logic for creating questions, mapping 'random' mode choices, and managing question lifecycle.
 2.  **Connection Manager**: Manages active WebSocket connections to notify users when their questions are answered.
-3.  **Storage Layer**: Abstracted interface for data persistence (currently in-memory).
+3.  **Rate Limiter**: Redis-based middleware that throttles requests based on the `x-user-id` header.
+4.  **Storage Layer**: Abstracted interface for data persistence (currently in-memory).
 
 ## Data Flow
 
-1.  **Creator** creates a question via `POST /api/question`.
-2.  **Creator** establishes a WebSocket connection at `/ws/{user_id}`.
-3.  **Creator** shares the link with the **Respondent**.
-4.  **Respondent** fetches the question details via `GET /api/question/{id}`.
-5.  **Respondent** submits an answer via `POST /api/answer`.
-6.  **Backend** processes the answer:
-    - If mode is `fixed`, it uses the respondent's choice.
-    - If mode is `random`, it flips a coin (or uses internal mapping) to decide the answer.
-7.  **Backend** sends a notification to the **Creator** via WebSocket.
-8.  **Creator**'s UI updates automatically to show the result.
+1.  **Creator** creates a question via `POST /api/question`. The request must include an `x-user-id` header for rate limiting.
+2.  **Backend** checks the **Rate Limiter** (Redis). If the limit is exceeded, it returns `429 Too Many Requests`.
+3.  **Creator** establishes a WebSocket connection at `/ws/{user_id}`.
+4.  **Creator** shares the link with the **Respondent**.
+5.  **Respondent** fetches the question details via `GET /api/question/{id}`.
+6.  **Respondent** submits an answer via `POST /api/answer`.
+7.  **Backend** processes the answer:
+    - If mode is `fixed`, it uses the respondent's choice (`YES` or `NO`).
+    - If mode is `random`, it uses the respondent's choice (`A` or `B`) and maps it to the pre-generated `YES`/`NO` mapping.
+8.  **Backend** sends a notification to the **Creator** via WebSocket.
+9.  **Creator**'s UI updates automatically to show the result.
 
 ## Modes
 

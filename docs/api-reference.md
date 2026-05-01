@@ -7,6 +7,9 @@
 
 Creates a new decision request.
 
+**Headers:**
+- `x-user-id` (Required): A unique identifier for the user (used for rate limiting).
+
 **Request Body:**
 ```json
 {
@@ -38,7 +41,7 @@ Retrieves details of a specific question.
   "sender_id": "unique-user-id",
   "mode": "fixed",
   "created_at": "2023-10-27T10:00:00",
-  "expires_at": "2023-10-27T10:10:00",
+  "expires_at": "2023-10-27T11:00:00",
   "is_answered": false,
   "answer": null
 }
@@ -56,7 +59,7 @@ Submits an answer to a question.
 {
   "question_id": "uuid-string",
   "user_id": "respondent-id",
-  "user_choice": "YES" // Required for fixed mode, ignored for random mode
+  "user_choice": "YES" // Required for both modes: YES/NO for fixed, A/B for random
 }
 ```
 
@@ -79,7 +82,7 @@ Establishes a WebSocket connection to receive real-time notifications for questi
 **Message Format (Sent by Server):**
 ```json
 {
-  "type": "RESULT_READY",
+  "type": "answer",
   "question_id": "uuid-string",
   "answer": "YES"
 }
@@ -93,4 +96,7 @@ Establishes a WebSocket connection to receive real-time notifications for questi
 - `400 Bad Request`:
   - Question has expired.
   - Question is already answered.
-  - Missing `user_choice` for fixed mode.
+  - Missing `user_choice` for fixed/random mode.
+  - Missing `x-user-id` header for creation.
+- `429 Too Many Requests`: Rate limit exceeded (100 requests per minute).
+- `503 Service Unavailable`: Rate limiter (Redis) is down.

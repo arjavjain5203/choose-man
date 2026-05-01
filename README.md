@@ -9,7 +9,8 @@ Choose-Man is an anonymous, real-time decision-making platform. Whether you need
   - **Fixed**: Respondent chooses YES or NO directly.
   - **Random**: Respondent triggers a random choice (Fate decides!).
 - **Real-time Results**: Creators see responses instantly via WebSockets—no page refresh needed.
-- **Self-Expiring**: Questions automatically expire after 10 minutes to keep things relevant.
+- **Rate Limiting**: Protects the API from abuse using Redis-backed throttling.
+- **Self-Expiring**: Questions automatically expire after 1 hour to keep things relevant.
 - **Zero Database**: Built for privacy with ephemeral in-memory storage.
 
 ## Tech Stack
@@ -17,11 +18,14 @@ Choose-Man is an anonymous, real-time decision-making platform. Whether you need
 - **Backend**: FastAPI (Python)
 - **Frontend**: React + Tailwind CSS + Vite
 - **Real-time**: WebSockets
+- **Rate Limiting**: Redis
 - **Containerization**: Docker
 
 ## Quick Start
 
 ### Running with Docker
+
+*Note: Redis must be accessible at `localhost:6379`. If running Redis on your host, you may need to use `--network="host"` (Linux) or `host.docker.internal` (Mac/Windows).*
 
 ```bash
 # 1. Build the frontend
