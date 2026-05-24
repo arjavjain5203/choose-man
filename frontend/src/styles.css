@@ -16,7 +16,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 50%, #150f24 0%, #0b0b0f 70%, #050508 100%);
+  /* Deep Hogwarts night sky with dark burgundy / indigo wizarding glow */
+  background: radial-gradient(circle at 50% 30%, #1e050f 0%, #0a0712 55%, #040306 100%);
   position: relative;
   overflow-x: hidden;
 }
@@ -31,11 +32,11 @@ body::before {
   height: 50vw;
   max-width: 600px;
   max-height: 600px;
-  background: radial-gradient(circle, rgba(91, 33, 182, 0.12) 0%, rgba(212, 175, 55, 0.02) 50%, transparent 80%);
+  background: radial-gradient(circle, rgba(127, 29, 29, 0.16) 0%, rgba(212, 175, 55, 0.02) 50%, transparent 80%);
   pointer-events: none;
   z-index: 0;
   filter: blur(80px);
-  animation: glowShiftPurple 25s ease-in-out infinite alternate;
+  animation: glowShiftBurgundy 25s ease-in-out infinite alternate;
 }
 
 body::after {
@@ -47,14 +48,14 @@ body::after {
   height: 60vw;
   max-width: 700px;
   max-height: 700px;
-  background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(91, 33, 182, 0.01) 50%, transparent 80%);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, rgba(127, 29, 29, 0.01) 50%, transparent 80%);
   pointer-events: none;
   z-index: 0;
   filter: blur(100px);
   animation: glowShiftGold 30s ease-in-out infinite alternate;
 }
 
-@keyframes glowShiftPurple {
+@keyframes glowShiftBurgundy {
   0% {
     transform: translate(0, 0) scale(1);
   }
@@ -493,4 +494,144 @@ a {
   .copy-btn {
     width: 100%;
   }
+}
+
+/* App Container and Background Magic Particles (Wand Dust, Gryffindor Sparks & Golden Snitch) */
+.app-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.magic-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.magic-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.particle-1 {
+  width: 5px;
+  height: 5px;
+  top: 15%;
+  left: 10%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.55) 0%, transparent 80%);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  animation: floatParticleOne 22s ease-in-out infinite alternate;
+}
+
+.particle-2 {
+  width: 6px;
+  height: 6px;
+  top: 65%;
+  left: 85%;
+  background: radial-gradient(circle, rgba(127, 29, 29, 0.5) 0%, transparent 80%);
+  box-shadow: 0 0 10px rgba(127, 29, 29, 0.35);
+  animation: floatParticleTwo 26s ease-in-out infinite alternate;
+}
+
+.particle-3 {
+  width: 4px;
+  height: 4px;
+  top: 75%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.6) 0%, transparent 80%);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+  animation: floatParticleThree 20s ease-in-out infinite alternate;
+}
+
+.particle-4 {
+  width: 6px;
+  height: 6px;
+  top: 25%;
+  left: 75%;
+  background: radial-gradient(circle, rgba(127, 29, 29, 0.45) 0%, transparent 80%);
+  box-shadow: 0 0 8px rgba(127, 29, 29, 0.3);
+  animation: floatParticleFour 24s ease-in-out infinite alternate;
+}
+
+.particle-5 {
+  width: 10px;
+  height: 10px;
+  top: 45%;
+  left: 40%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 85%);
+  animation: floatParticleFive 32s ease-in-out infinite alternate;
+}
+
+/* Flying Golden Snitch Particle */
+@keyframes snitchDrift {
+  0% {
+    transform: translate(-10vw, 40vh) scale(0.6);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  42% {
+    transform: translate(45vw, 15vh) scale(1.1);
+    opacity: 0.95;
+    box-shadow: 0 0 15px 3px rgba(212, 175, 55, 0.9), 0 0 6px 1px rgba(255, 255, 255, 0.8);
+  }
+  50% {
+    transform: translate(52vw, 25vh) scale(1);
+    opacity: 0.9;
+  }
+  55% {
+    transform: translate(65vw, 45vh) scale(0.9);
+    opacity: 0.95;
+    box-shadow: 0 0 12px 2px rgba(212, 175, 55, 0.85);
+  }
+  92% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(110vw, 25vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.particle-snitch {
+  width: 9px;
+  height: 9px;
+  background: radial-gradient(circle, #ffffff 0%, #d4af37 60%, transparent 100%);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.9);
+  animation: snitchDrift 16s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  top: 0;
+  left: 0;
+}
+
+@keyframes floatParticleOne {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+  100% { transform: translate(6vw, -8vh) scale(1.4); opacity: 0.75; }
+}
+
+@keyframes floatParticleTwo {
+  0% { transform: translate(0, 0) scale(1.15); opacity: 0.3; }
+  100% { transform: translate(-8vw, -12vh) scale(0.85); opacity: 0.65; }
+}
+
+@keyframes floatParticleThree {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+  100% { transform: translate(7vw, 10vh) scale(1.35); opacity: 0.8; }
+}
+
+@keyframes floatParticleFour {
+  0% { transform: translate(0, 0) scale(0.85); opacity: 0.35; }
+  100% { transform: translate(-9vw, 8vh) scale(1.4); opacity: 0.75; }
+}
+
+@keyframes floatParticleFive {
+  0% { transform: translate(0, 0) scale(0.9); opacity: 0.2; }
+  100% { transform: translate(4vw, -6vh) scale(1.2); opacity: 0.55; }
 }
