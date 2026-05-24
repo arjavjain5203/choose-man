@@ -40,9 +40,17 @@ function ResultPanel({ answer, error, loading, question, title = "Result" }) {
     }
   }
 
+  const getDecoratedTitle = (rawTitle) => {
+    const lower = rawTitle.toLowerCase();
+    if (lower.includes("live")) return "🔮 Live Result";
+    if (lower.includes("status")) return "🔮 Question Status";
+    if (lower.includes("state")) return "🔮 Answer State";
+    return `🔮 ${rawTitle}`;
+  };
+
   return (
     <aside className="card result-panel">
-      <h2>{title}</h2>
+      <h2>{getDecoratedTitle(title)}</h2>
       {body}
     </aside>
   );

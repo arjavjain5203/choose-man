@@ -5,7 +5,7 @@ function DecisionButtons({ disabled, mode, onSelect }) {
 
   return (
     <div className="card">
-      <h2>Answer</h2>
+      <h2>⚡ Answer</h2>
       <p className="muted">
         {isRandom
           ? "Choose A or B to reveal the stored result."
@@ -19,7 +19,7 @@ function DecisionButtons({ disabled, mode, onSelect }) {
           disabled={disabled}
           onClick={() => onSelect(firstChoice)}
         >
-          {firstChoice}
+          {firstChoice === "YES" ? "✅ YES" : `🔮 ${firstChoice}`}
         </button>
 
         <button
@@ -28,7 +28,7 @@ function DecisionButtons({ disabled, mode, onSelect }) {
           disabled={disabled}
           onClick={() => onSelect(secondChoice)}
         >
-          {secondChoice}
+          {secondChoice === "NO" ? "❌ NO" : `🔮 ${secondChoice}`}
         </button>
       </div>
     </div>

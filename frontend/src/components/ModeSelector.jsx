@@ -1,7 +1,7 @@
 function ModeSelector({ mode, onChange }) {
   return (
     <div className="card">
-      <h2>Choose a mode</h2>
+      <h2>🧭 Choose a Mode</h2>
       <div className="mode-selector">
         <label className={mode === "fixed" ? "mode-option active" : "mode-option"}>
           <input
@@ -11,7 +11,7 @@ function ModeSelector({ mode, onChange }) {
             checked={mode === "fixed"}
             onChange={() => onChange("fixed")}
           />
-          <span>Fixed</span>
+          <span>🧭 Fixed</span>
         </label>
         <label className={mode === "random" ? "mode-option active" : "mode-option"}>
           <input
@@ -21,7 +21,7 @@ function ModeSelector({ mode, onChange }) {
             checked={mode === "random"}
             onChange={() => onChange("random")}
           />
-          <span>Random</span>
+          <span>🪄 Random</span>
         </label>
       </div>
       <p className="muted">

@@ -11,7 +11,7 @@ function QuestionInput({ value, onChange, onSubmit, disabled }) {
 
   return (
     <div className="card">
-      <h2>Ask a question</h2>
+      <h2>📝 Ask a Question</h2>
       <textarea
         className="question-input"
         value={value}

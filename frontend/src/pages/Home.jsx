@@ -178,7 +178,7 @@ function Home() {
         <section className="content-column">
           <header className="page-header">
             <p className="eyebrow">Anonymous decisions</p>
-            <h1>Ask a question, answer it yourself, or share it for someone else.</h1>
+            <h1>🪄 Ask a question, answer it yourself, or share it for someone else.</h1>
           </header>
           <ModeSelector mode={mode} onChange={setMode} />
           <QuestionInput

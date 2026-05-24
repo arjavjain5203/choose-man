@@ -48,11 +48,11 @@ function ShareLink({ link }) {
 
   return (
     <div className="card">
-      <h2>Share this link</h2>
+      <h2>🔗 Share This Link</h2>
       <div className="share-link-row">
         <input className="share-link-input" value={link} readOnly />
         <button className={`copy-btn ${copied ? "copied" : ""}`} type="button" onClick={handleCopy}>
-          {copied ? "Copied!" : "Copy Link"}
+          {copied ? "✅ Copied!" : "📋 Copy Link"}
         </button>
       </div>
     </div>
